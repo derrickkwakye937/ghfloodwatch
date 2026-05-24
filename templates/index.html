@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GH FloodWatch</title>
+
+    <!-- Leaflet Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Our CSS -->
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="logo">🌊 GH FloodWatch</div>
+        <div class="nav-links">
+            <a href="#">Dashboard</a>
+            <a href="#">Alerts</a>
+            <a href="#">About</a>
+        </div>
+    </nav>
+
+    <!-- MAIN LAYOUT -->
+    <div class="main-container">
+
+        <!-- LEFT PANEL -->
+        <div class="left-panel">
+            <h2>Flood Risk Monitor</h2>
+            <p class="subtitle">Real-time flood risk intelligence for Ghanaian communities</p>
+
+            <!-- Search -->
+            <div class="search-box">
+                <input type="text" id="locationInput" placeholder="Search a district or region..." />
+                <button onclick="searchLocation()">Search</button>
+            </div>
+
+            <!-- Weather Card -->
+            <div class="info-card" id="weatherCard">
+                <h3>📍 Select a Location</h3>
+                <p>Search for a district to see live weather and flood risk data.</p>
+            </div>
+
+            <!-- Risk Card -->
+            <div class="risk-card" id="riskCard">
+                <h3>Flood Risk Level</h3>
+                <div class="risk-badge" id="riskBadge">--</div>
+                <p id="riskDescription">No data yet</p>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-row">
+                <div class="stat-box">
+                    <span id="rainfall">--</span>
+                    <p>Rainfall (mm)</p>
+                </div>
+                <div class="stat-box">
+                    <span id="humidity">--</span>
+                    <p>Humidity (%)</p>
+                </div>
+                <div class="stat-box">
+                    <span id="windspeed">--</span>
+                    <p>Wind (km/h)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL — MAP -->
+        <div class="right-panel">
+            <div id="map"></div>
+        </div>
+
+    </div>
+
+    <!-- Our JS -->
+    <script src="../static/app.js"></script>
+
+</body>
+</html>
