@@ -234,6 +234,13 @@ def monitor_all():
         except:
             continue
     return {"monitored": len(results), "ml_powered": ML_AVAILABLE, "results": results}
-
+@app.get("/api/geojson")
+def get_geojson():
+    try:
+        with open("data/ghana_districts.geojson", "r") as f:
+            import json
+            return json.load(f)
+    except:
+        return {"error": "GeoJSON file not found"}
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

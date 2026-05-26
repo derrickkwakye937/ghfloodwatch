@@ -4,15 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GH FloodWatch</title>
-
-    <!-- Leaflet Map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-    <!-- Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-    <!-- Our CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="../static/style.css">
 </head>
 <body>
@@ -37,7 +32,7 @@
 
             <!-- Search -->
             <div class="search-box">
-                <input type="text" id="locationInput" placeholder="Search a district or region..." />
+                <input type="text" id="locationInput" placeholder="Search a district..." />
                 <button onclick="searchLocation()">Search</button>
             </div>
 
@@ -69,6 +64,20 @@
                     <p>Wind (km/h)</p>
                 </div>
             </div>
+
+            <!-- Alerts Panel -->
+            <div class="alerts-section">
+                <h3>🚨 Active Alerts <span id="alertCount" class="alert-count">0</span></h3>
+                <div id="alertsList">
+                    <p class="no-alerts">No active alerts</p>
+                </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-section">
+                <h3>📊 District History</h3>
+                <canvas id="rainfallChart"></canvas>
+            </div>
         </div>
 
         <!-- RIGHT PANEL — MAP -->
@@ -78,7 +87,6 @@
 
     </div>
 
-    <!-- Our JS -->
     <script src="../static/app.js"></script>
 
 </body>

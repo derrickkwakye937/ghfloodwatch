@@ -107,7 +107,11 @@ async function fetchWeather(district) {
         document.getElementById('windspeed').textContent = data.wind_speed;
 
         // Use backend risk level
+    // Use backend risk level
         assessFloodRisk(data.rainfall, data.humidity, data.wind_speed, data.district, data.risk_level);
+
+        // Load chart for this district
+        loadChart(district.key);
 
     } catch (error) {
         document.getElementById('weatherCard').innerHTML = `
@@ -165,3 +169,171 @@ function assessFloodRisk(rainfall, humidity, wind, locationName, riskOverride = 
 document.getElementById('locationInput').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') searchLocation();
 });
+// Load active alerts
+async function loadAlerts() {
+    try {
+        const response = await fetch('http://localhost:8000/api/alerts');
+        const data = await response.json();
+
+        const alertsList = document.getElementById('alertsList');
+        const alertCount = document.getElementById('alertCount');
+
+        alertCount.textContent = data.count;
+
+        if (data.count === 0) {
+            alertsList.innerHTML = '<p class="no-alerts">✅ No active alerts — all districts stable</p>';
+            return;
+        }
+
+        alertsList.innerHTML = data.alerts.map(alert => `
+            <div class="alert-item ${alert.risk_level.toLowerCase()}">
+                <strong>⚠️ ${alert.district}, ${alert.region}</strong>
+                <p>${alert.message}</p>
+                <p style="font-size:0.75rem; color:#58a6ff">${new Date(alert.timestamp).toLocaleString()}</p>
+            </div>
+        `).join('');
+
+    } catch(e) {
+        console.log("Could not load alerts:", e);
+    }
+}
+
+// Load rainfall history chart for a district
+async function loadChart(districtKey) {
+    try {
+        const response = await fetch(`http://localhost:8000/api/history/${encodeURIComponent(districtKey)}`);
+        const data = await response.json();
+
+        if (!data.history || data.history.length === 0) return;
+
+        const labels = data.history.map((_, i) => `Reading ${data.history.length - i}`).reverse();
+        const rainfall = data.history.map(h => h.rainfall).reverse();
+        const humidity = data.history.map(h => h.humidity).reverse();
+
+        const ctx = document.getElementById('rainfallChart').getContext('2d');
+
+        // Destroy existing chart if any
+        if (window.floodChart) window.floodChart.destroy();
+
+        window.floodChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Rainfall (mm)',
+                        data: rainfall,
+                        borderColor: '#58a6ff',
+                        backgroundColor: 'rgba(88, 166, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Humidity (%)',
+                        data: humidity,
+                        borderColor: '#3fb950',
+                        backgroundColor: 'rgba(63, 185, 80, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: '#8b949e', font: { size: 11 } }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#8b949e', font: { size: 10 } },
+                        grid: { color: '#21262d' }
+                    },
+                    y: {
+                        ticks: { color: '#8b949e', font: { size: 10 } },
+                        grid: { color: '#21262d' }
+                    }
+                }
+            }
+        });
+
+    } catch(e) {
+        console.log("Could not load chart:", e);
+    }
+}
+// Load all districts as colored circles
+async function loadAllDistricts() {
+    const districts = [
+        {name: "Accra", region: "Greater Accra", coords: [5.6037, -0.1870], key: "accra"},
+        {name: "Kumasi", region: "Ashanti", coords: [6.6885, -1.6244], key: "kumasi"},
+        {name: "Tamale", region: "Northern", coords: [9.4075, -0.8533], key: "tamale"},
+        {name: "Takoradi", region: "Western", coords: [4.8845, -1.7554], key: "takoradi"},
+        {name: "Cape Coast", region: "Central", coords: [5.1054, -1.2466], key: "cape coast"},
+        {name: "Sunyani", region: "Bono", coords: [7.3349, -2.3123], key: "sunyani"},
+        {name: "Ho", region: "Volta", coords: [6.6011, 0.4712], key: "ho"},
+        {name: "Koforidua", region: "Eastern", coords: [6.0940, -0.2574], key: "koforidua"},
+        {name: "Bolgatanga", region: "Upper East", coords: [10.7856, -0.8514], key: "bolgatanga"},
+        {name: "Wa", region: "Upper West", coords: [10.0601, -2.5099], key: "wa"},
+        {name: "Techiman", region: "Bono East", coords: [7.5833, -1.9333], key: "techiman"},
+        {name: "Yendi", region: "Northern", coords: [9.4422, -0.0136], key: "yendi"},
+        {name: "Obuasi", region: "Ashanti", coords: [6.2000, -1.6667], key: "obuasi"},
+        {name: "Tema", region: "Greater Accra", coords: [5.6698, -0.0166], key: "tema"},
+        {name: "Winneba", region: "Central", coords: [5.3500, -0.6333], key: "winneba"},
+        {name: "Sogakope", region: "Volta", coords: [5.8719, 0.6069], key: "sogakope"},
+        {name: "Nalerigu", region: "North East", coords: [10.5167, -0.3667], key: "nalerigu"},
+        {name: "Damongo", region: "Savannah", coords: [9.0833, -1.8167], key: "damongo"},
+        {name: "Dambai", region: "Oti", coords: [8.0698, 0.1760], key: "dambai"},
+        {name: "Sefwi Wiawso", region: "Western North", coords: [6.2000, -2.4833], key: "sefwi wiawso"}
+    ];
+
+    const colors = {
+        "LOW": "#3fb950",
+        "MODERATE": "#d29922", 
+        "HIGH": "#f85149",
+        "SEVERE": "#ff0000"
+    };
+
+    // Place markers immediately with default color, then update with real data
+    for (const d of districts) {
+        try {
+            const response = await fetch(`http://localhost:8000/api/weather/${encodeURIComponent(d.key)}`);
+            const data = await response.json();
+            const risk = data.risk_level || "LOW";
+            const color = colors[risk] || "#58a6ff";
+
+            L.circleMarker(d.coords, {
+                radius: 14,
+                fillColor: color,
+                color: "#ffffff",
+                weight: 2.5,
+                opacity: 1,
+                fillOpacity: 0.85
+            }).addTo(map)
+            .bindPopup(`
+                <b>${d.name}, ${d.region}</b><br>
+                🌡️ Temp: <strong>${data.temperature}°C</strong><br>
+                🌧️ Rainfall: <strong>${data.rainfall}mm</strong><br>
+                💧 Humidity: <strong>${data.humidity}%</strong><br>
+                ⚠️ Risk: <strong style="color:${color}">${risk}</strong>
+            `);
+        } catch(e) {
+            // Place grey marker if fetch fails
+            L.circleMarker(d.coords, {
+                radius: 14,
+                fillColor: "#58a6ff",
+                color: "#ffffff",
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.9
+            }).addTo(map)
+            .bindPopup(`<b>${d.name}, ${d.region}</b><br>Data unavailable`);
+        }
+    }
+    console.log("✅ All district markers loaded");
+}
+// Load on startup
+loadGeoJSON();
+setTimeout(loadAllDistricts, 2000);
+loadAlerts();
+setInterval(loadAlerts, 30000);
