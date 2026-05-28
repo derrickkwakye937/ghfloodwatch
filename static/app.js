@@ -87,7 +87,7 @@ async function searchLocation() {
 // Fetch live weather from Open-Meteo (free, no API key needed)
 async function fetchWeather(district) {
     try {
-        const response = await fetch(`http://localhost:8000/api/weather/${encodeURIComponent(district.key)}`);
+        const response = await fetch(`https://ghfloodwatch.onrender.com/api/weather/${encodeURIComponent(district.key)}`);
         const data = await response.json();
 
         if (data.error) throw new Error(data.error);
@@ -172,7 +172,7 @@ document.getElementById('locationInput').addEventListener('keypress', function(e
 // Load active alerts
 async function loadAlerts() {
     try {
-        const response = await fetch('http://localhost:8000/api/alerts');
+        const response = await fetch('https://ghfloodwatch.onrender.com/api/alerts');
         const data = await response.json();
 
         const alertsList = document.getElementById('alertsList');
@@ -201,7 +201,7 @@ async function loadAlerts() {
 // Load rainfall history chart for a district
 async function loadChart(districtKey) {
     try {
-        const response = await fetch(`http://localhost:8000/api/history/${encodeURIComponent(districtKey)}`);
+        const response = await fetch(`https://ghfloodwatch.onrender.com/api/history/${encodeURIComponent(districtKey)}`);
         const data = await response.json();
 
         if (!data.history || data.history.length === 0) return;
@@ -297,7 +297,7 @@ async function loadAllDistricts() {
     // Place markers immediately with default color, then update with real data
     for (const d of districts) {
         try {
-            const response = await fetch(`http://localhost:8000/api/weather/${encodeURIComponent(d.key)}`);
+            const response = await fetch(`https://ghfloodwatch.onrender.com/api/weather/${encodeURIComponent(d.key)}`);
             const data = await response.json();
             const risk = data.risk_level || "LOW";
             const color = colors[risk] || "#58a6ff";
