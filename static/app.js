@@ -48,7 +48,7 @@ async function searchLocation() {
     `;
 
     try {
-        const response = await fetch(`http://localhost:8000/api/weather/${encodeURIComponent(input)}`);
+        const response = await fetch(`https://ghfloodwatch.onrender.com/api/weather/${encodeURIComponent(input)}`);
         const data = await response.json();
 
         if (data.error) {
